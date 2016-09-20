@@ -1,0 +1,27 @@
+{
+  "name": "quill-editor",
+  "main": "quill-editor.js",
+  "version": "0.0.1",
+  "authors": [
+    "LasaleFamine <info@godev.space>"
+  ],
+  "description": "Polymer (ES6) wrapper for QuillJs editor",
+  "keywords": [
+    "quilljs",
+    "editor",
+    "polymer",
+    "es6"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/LasaleFamine/quill-editor#readme",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "polymer": "^1.6.1"
+  }
+}
