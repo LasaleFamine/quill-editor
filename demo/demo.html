@@ -1,0 +1,25 @@
+<!-- <link rel="import" href="../../polymer/polymer.html"> -->
+<link rel="import" href="../quill-editor.html">
+
+<dom-module id="demo-page">
+    <template>
+        <h3>Basic quill-editor demo</h3>
+        <div>
+            <quill-editor placeholder="Testing placeholder" toolbar-options="[[toolbarOptions]]"></quill-editor>
+            <quill-editor load-lib="false"></quill-editor>
+            <quill-editor load-lib="false" theme="bubble"></quill-editor>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: "demo-page",
+            properties: {
+              toolbarOptions: Array
+            },
+            ready: function () {
+              this.set('toolbarOptions', [['bold', 'italic'], ['link', 'image']]);
+            }
+        });
+
+    </script>
+</dom-module>

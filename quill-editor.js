@@ -1,5 +1,7 @@
 'use strict';
 
+/** TODO: code syntax */
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -23,30 +25,54 @@ var quillEditor = function () {
         Quill: {
           type: Function
         },
+        /** Load or not the lib */
+        loadLib: {
+          type: Boolean,
+          value: true
+        },
         /* {module: toolbar: toolbarOptions} */
         toolbarOptions: {
           type: Array,
-          value: [[{
-            'header': [1, 2, 3, 4, 5, 6, false]
-          }], ['bold', 'italic', 'underline', 'strike'], // toggled buttons
+          value: [['bold', 'italic', 'underline', 'strike'], // toggled buttons
+          ['blockquote', 'code-block'], [{
+            'header': 1
+          }, {
+            'header': 2
+          }], // custom button values
           [{
-            'align': []
-          }], [{
             'list': 'ordered'
           }, {
             'list': 'bullet'
           }], [{
+            'script': 'sub'
+          }, {
+            'script': 'super'
+          }], // superscript/subscript
+          [{
             'indent': '-1'
           }, {
             'indent': '+1'
           }], // outdent/indent
           [{
+            'direction': 'rtl'
+          }], // text direction
+
+          [{
+            'size': ['small', false, 'large', 'huge']
+          }], // custom dropdown
+          [{
+            'header': [1, 2, 3, 4, 5, 6, false]
+          }], [{
             'color': []
           }, {
             'background': []
           }], // dropdown with defaults from theme
-          ['clean'], // remove formatting button
-          ['link', 'image', 'video'], ['blockquote', 'code-block']]
+          [{
+            'font': []
+          }], [{
+            'align': []
+          }], ['clean'] // remove formatting button
+          ]
         },
         /* {placeholder: placeholder} */
         placeholder: {
@@ -61,62 +87,103 @@ var quillEditor = function () {
       };
     }
 
-    // Define other lifecycle methods as you need.
+    // onReady insert Quill style and js library from CDN
 
   }, {
     key: 'ready',
-    value: function ready() {
-      this._insertStyleLib();
-      this._insertLib();
-    }
+    value: function ready() {}
   }, {
     key: 'attached',
-    value: function attached() {}
-  }, {
-    key: 'detached',
-    value: function detached() {}
-  }, {
-    key: 'attributeChanged',
-    value: function attributeChanged() {}
+    value: function attached() {
+
+      if (this._preventReLoadLibs()) return false;
+      this._insertStyleLib(this.theme === 'bubble' ? '//cdn.quilljs.com/1.0.4/quill.bubble.css' : '//cdn.quilljs.com/1.0.4/quill.snow.css');
+      this._insertStyleLib('//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.6.0/styles/mono-blue.min.css');
+      this._insertLib('//cdn.quilljs.com/latest/quill.min.js', 'quill');
+      this._insertLib('//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.6.0/highlight.min.js', 'hljs');
+    }
+
+    /** ===============
+     * Private methods
+     **/
+
+    /* Choose the the css lib according to the theme choise and insert as head child */
+
   }, {
     key: '_insertStyleLib',
-    value: function _insertStyleLib() {
+    value: function _insertStyleLib(href) {
       var link = document.createElement('link');
-      var href = this.theme === 'bubble' ? '//cdn.quilljs.com/1.0.4/quill.bubble.css' : '//cdn.quilljs.com/1.0.4/quill.snow.css';
       link.setAttribute('rel', 'stylesheet');
       link.setAttribute('type', 'text/css');
       link.setAttribute('href', href);
       document.head.appendChild(link);
     }
+
+    /* Insert at the end of the body the js lib */
+
   }, {
     key: '_insertLib',
-    value: function _insertLib() {
+    value: function _insertLib(link, type) {
       var _this = this;
 
       var quillSrc = document.createElement('script');
-      quillSrc.setAttribute('src', '//cdn.quilljs.com/1.0.0-rc.4/quill.js');
+      quillSrc.setAttribute('src', link);
+      quillSrc.id = 'quill-editor-src';
       quillSrc.async = true;
       quillSrc.onreadystatechange = quillSrc.onload = function (evt) {
-        _this._onLoadLib(evt);
+        _this._onLoadLib(evt, type);
       };
       document.body.appendChild(quillSrc);
     }
   }, {
-    key: '_onLoadLib',
-    value: function _onLoadLib(evt) {
-      console.log(evt);
-      this._initLib();
+    key: '_preventReLoadLibs',
+    value: function _preventReLoadLibs() {
+      var _this2 = this;
+
+      if (!this.loadLib) {
+        document.addEventListener('quill-editor-loaded', function () {
+          if (window.Quill) _this2._initQuill();
+          if (window.hljs) _this2._initHljs();
+        });
+        return true;
+      }
+      return false;
     }
+
+    /* Initialize Quill with the choosen parameters */
+
   }, {
-    key: '_initLib',
-    value: function _initLib() {
+    key: '_initQuill',
+    value: function _initQuill() {
+      console.log(this.toolbarOptions);
       this.Quill = new Quill(this.$.editor, {
-        module: {
+        modules: {
           toolbar: this.toolbarOptions
         },
         placeholder: this.placeholder,
         theme: this.theme
       });
+    }
+    /* Initialize highlight.js with the choosen parameters */
+
+  }, {
+    key: '_initHljs',
+    value: function _initHljs() {
+      hljs.configure({
+        languages: ['javascript', 'ruby', 'python']
+      });
+    }
+
+    /** ===============
+     * Event listeners
+     **/
+    /* On lib loaded */
+
+  }, {
+    key: '_onLoadLib',
+    value: function _onLoadLib(evt, type) {
+      document.dispatchEvent(new CustomEvent('quill-editor-loaded'));
+      type === 'quill' ? this._initQuill() : this._initHljs();
     }
   }, {
     key: 'behaviors',

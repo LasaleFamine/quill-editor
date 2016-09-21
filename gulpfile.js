@@ -5,6 +5,7 @@ const
     babel = require('gulp-babel'),
     rename = require('gulp-rename'),
     watch = require('gulp-watch'),
+    plumber = require('gulp-plumber'),
     connect = require('gulp-connect');
 
 const toWatch = ['quill-editor.es6.js', 'quill-editor.html'];
@@ -12,10 +13,8 @@ const component = 'quill-editor.es6.js';
 
 
 /**
-* Watch changes in .es6.js file and runs 'babel' task
+* Watch changes in .es6.js and .html file, runs 'babel' task and reload
 */
-gulp.task('watch', ['connect', 'watch-reload']);
-
 gulp.task('watch-reload', function() {
   gulp.watch(toWatch, ['babel', 'reload']);
 });
@@ -24,7 +23,6 @@ gulp.task('reload', function () {
   gulp.src(toWatch)
     .pipe(connect.reload());
 });
-
 gulp.task('connect', function() {
   connect.server({
     root: './../',
@@ -34,6 +32,7 @@ gulp.task('connect', function() {
 
 gulp.task('babel', () => {
     return gulp.src(component)
+      .pipe(plumber())
       .pipe(babel({
           presets: ['es2015']
       }))
@@ -44,3 +43,4 @@ gulp.task('babel', () => {
 });
 
 gulp.task('default', ['babel'])
+gulp.task('watch', ['connect', 'watch-reload']);
