@@ -25,11 +25,6 @@ var quillEditor = function () {
         Quill: {
           type: Function
         },
-        /** Load or not the lib */
-        loadLib: {
-          type: Boolean,
-          value: true
-        },
         /* {module: toolbar: toolbarOptions} */
         toolbarOptions: {
           type: Array,
@@ -74,6 +69,10 @@ var quillEditor = function () {
           }], ['clean'] // remove formatting button
           ]
         },
+        syntax: {
+          type: Boolean,
+          value: false
+        },
         /* {placeholder: placeholder} */
         placeholder: {
           type: String,
@@ -83,6 +82,14 @@ var quillEditor = function () {
         theme: {
           type: String,
           value: 'snow'
+        },
+        __initTimeQuill: {
+          type: Number,
+          value: 0
+        },
+        __initTimeHljs: {
+          type: Number,
+          value: 0
         }
       };
     }
@@ -96,9 +103,11 @@ var quillEditor = function () {
     key: 'attached',
     value: function attached() {
 
-      if (this._preventReLoadLibs()) return false;
-      this._insertStyleLib(this.theme === 'bubble' ? '//cdn.quilljs.com/1.0.4/quill.bubble.css' : '//cdn.quilljs.com/1.0.4/quill.snow.css');
-      this._insertStyleLib('//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.6.0/styles/mono-blue.min.css');
+      var choosenTheme = this.theme === 'bubble' ? '//cdn.quilljs.com/1.0.4/quill.bubble.css' : '//cdn.quilljs.com/1.0.4/quill.snow.css';
+
+      this._insertStyleLib(choosenTheme, this.theme);
+
+      this._insertStyleLib('//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.6.0/styles/mono-blue.min.css', 'hljs');
       this._insertLib('//cdn.quilljs.com/latest/quill.min.js', 'quill');
       this._insertLib('//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.6.0/highlight.min.js', 'hljs');
     }
@@ -111,8 +120,10 @@ var quillEditor = function () {
 
   }, {
     key: '_insertStyleLib',
-    value: function _insertStyleLib(href) {
+    value: function _insertStyleLib(href, id) {
+      if (document.querySelector('#' + id + '-css')) return false;
       var link = document.createElement('link');
+      link.id = id + '-css';
       link.setAttribute('rel', 'stylesheet');
       link.setAttribute('type', 'text/css');
       link.setAttribute('href', href);
@@ -126,28 +137,19 @@ var quillEditor = function () {
     value: function _insertLib(link, type) {
       var _this = this;
 
-      var quillSrc = document.createElement('script');
-      quillSrc.setAttribute('src', link);
-      quillSrc.id = 'quill-editor-src';
-      quillSrc.async = true;
-      quillSrc.onreadystatechange = quillSrc.onload = function (evt) {
+      if (document.querySelector('#' + type)) {
+        this._addListener();
+        return false;
+      }
+      this._addListener();
+      var src = document.createElement('script');
+      src.setAttribute('src', link);
+      src.id = type;
+      src.async = true;
+      src.onreadystatechange = src.onload = function (evt) {
         _this._onLoadLib(evt, type);
       };
-      document.body.appendChild(quillSrc);
-    }
-  }, {
-    key: '_preventReLoadLibs',
-    value: function _preventReLoadLibs() {
-      var _this2 = this;
-
-      if (!this.loadLib) {
-        document.addEventListener('quill-editor-loaded', function () {
-          if (window.Quill) _this2._initQuill();
-          if (window.hljs) _this2._initHljs();
-        });
-        return true;
-      }
-      return false;
+      document.body.appendChild(src);
     }
 
     /* Initialize Quill with the choosen parameters */
@@ -155,22 +157,38 @@ var quillEditor = function () {
   }, {
     key: '_initQuill',
     value: function _initQuill() {
-      console.log(this.toolbarOptions);
+      console.info('Count time init Quill: ', this.__initTimeQuill + 1);
       this.Quill = new Quill(this.$.editor, {
         modules: {
-          toolbar: this.toolbarOptions
+          toolbar: this.toolbarOptions,
+          syntax: this.syntax
         },
         placeholder: this.placeholder,
         theme: this.theme
       });
+      this.isQuillInit = true;
     }
     /* Initialize highlight.js with the choosen parameters */
 
   }, {
     key: '_initHljs',
     value: function _initHljs() {
-      hljs.configure({
-        languages: ['javascript', 'ruby', 'python']
+      console.info('Count time init Hljs: ', this.__initTimeHljs + 1);
+      window.hljs.configure({
+        languages: ['javascript', 'html', 'python']
+      });
+      this.isHljsInit = true;
+    }
+    /* Add listener to the document for the load of the library */
+
+  }, {
+    key: '_addListener',
+    value: function _addListener() {
+      var _this2 = this;
+
+      document.addEventListener('quill-editor-loaded', function () {
+        if (window.Quill && !_this2.isQuillInit) _this2._initQuill();
+        if (window.hljs && !_this2.isHljsInit) _this2._initHljs();
       });
     }
 
@@ -182,8 +200,9 @@ var quillEditor = function () {
   }, {
     key: '_onLoadLib',
     value: function _onLoadLib(evt, type) {
-      document.dispatchEvent(new CustomEvent('quill-editor-loaded'));
-      type === 'quill' ? this._initQuill() : this._initHljs();
+      setTimeout(function () {
+        document.dispatchEvent(new CustomEvent('quill-editor-loaded'));
+      });
     }
   }, {
     key: 'behaviors',
