@@ -1,6 +1,6 @@
 'use strict';
 
-/** TODO: code syntax */
+/** TODO: code syntax ESLint */
 
 class quillEditor {
   // Define behaviors with a getter.
@@ -70,6 +70,7 @@ class quillEditor {
           ['clean'] // remove formatting button
         ]
       },
+      /** Choose to activate syntax highlight */
       syntax: {
         type: Boolean,
         value: false
@@ -97,21 +98,13 @@ class quillEditor {
 
   // onReady insert Quill style and js library from CDN
   ready() {
+    let choosenTheme = this.theme === 'bubble' ? '//cdn.quilljs.com/1.0.4/quill.bubble.css' : '//cdn.quilljs.com/1.0.4/quill.snow.css'
 
+    this._insertStyleLib(choosenTheme, this.theme);
+    this._insertStyleLib('//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.6.0/styles/mono-blue.min.css', 'hljs')
+    this._insertLib('//cdn.quilljs.com/latest/quill.min.js', 'quill')
+    this._insertLib('//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.6.0/highlight.min.js', 'hljs')
   }
-
-  attached() {
-
-      let choosenTheme = this.theme === 'bubble' ? '//cdn.quilljs.com/1.0.4/quill.bubble.css' : '//cdn.quilljs.com/1.0.4/quill.snow.css'
-
-      this._insertStyleLib(choosenTheme, this.theme);
-
-      this._insertStyleLib('//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.6.0/styles/mono-blue.min.css', 'hljs')
-      this._insertLib('//cdn.quilljs.com/latest/quill.min.js', 'quill')
-      this._insertLib('//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.6.0/highlight.min.js', 'hljs')
-
-  }
-
 
   /** ===============
    * Private methods
@@ -145,7 +138,6 @@ class quillEditor {
     document.body.appendChild(src);
   }
 
-
   /* Initialize Quill with the choosen parameters */
   _initQuill() {
     console.info('Count time init Quill: ', this.__initTimeQuill+1);
@@ -159,6 +151,7 @@ class quillEditor {
     });
     this.isQuillInit = true;
   }
+
   /* Initialize highlight.js with the choosen parameters */
   _initHljs() {
     console.info('Count time init Hljs: ', this.__initTimeHljs+1);
@@ -167,6 +160,7 @@ class quillEditor {
     });
     this.isHljsInit = true;
   }
+
   /* Add listener to the document for the load of the library */
   _addListener() {
     document.addEventListener('quill-editor-loaded', () => {

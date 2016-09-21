@@ -1,6 +1,6 @@
 'use strict';
 
-/** TODO: code syntax */
+/** TODO: code syntax ESLint */
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -69,6 +69,7 @@ var quillEditor = function () {
           }], ['clean'] // remove formatting button
           ]
         },
+        /** Choose to activate syntax highlight */
         syntax: {
           type: Boolean,
           value: false
@@ -98,15 +99,10 @@ var quillEditor = function () {
 
   }, {
     key: 'ready',
-    value: function ready() {}
-  }, {
-    key: 'attached',
-    value: function attached() {
-
+    value: function ready() {
       var choosenTheme = this.theme === 'bubble' ? '//cdn.quilljs.com/1.0.4/quill.bubble.css' : '//cdn.quilljs.com/1.0.4/quill.snow.css';
 
       this._insertStyleLib(choosenTheme, this.theme);
-
       this._insertStyleLib('//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.6.0/styles/mono-blue.min.css', 'hljs');
       this._insertLib('//cdn.quilljs.com/latest/quill.min.js', 'quill');
       this._insertLib('//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.6.0/highlight.min.js', 'hljs');
@@ -168,6 +164,7 @@ var quillEditor = function () {
       });
       this.isQuillInit = true;
     }
+
     /* Initialize highlight.js with the choosen parameters */
 
   }, {
@@ -179,6 +176,7 @@ var quillEditor = function () {
       });
       this.isHljsInit = true;
     }
+
     /* Add listener to the document for the load of the library */
 
   }, {
