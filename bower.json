@@ -5,7 +5,7 @@
   "authors": [
     "LasaleFamine <info@godev.space>"
   ],
-  "description": "Polymer (ES6) wrapper for QuillJs editor",
+  "description": "Polymer (ES6) wrapper of QuillJs editor",
   "keywords": [
     "quilljs",
     "editor",

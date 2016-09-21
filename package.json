@@ -1,7 +1,7 @@
 {
   "name": "quill-editor",
   "version": "0.0.1",
-  "description": "Polymer (ES6) wrapper for QuillJs editor",
+  "description": "Polymer (ES6) wrapper of QuillJs editor",
   "main": "quill-editor.js",
   "repository": {
     "type": "git",
